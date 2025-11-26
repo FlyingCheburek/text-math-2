@@ -30,3 +30,23 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio IDE files
+*.recipe
+*.ilk
+*.txt
+*.idb
+*.pdb
+*.sln
+*.vcxproj.filters
+*.vcxproj.user
+*.vsidx
+*.suo
+*.db
+*.json
+*.vcxproj
+*.tlog
+*.log
+*.lastbuildstate
+"src/Text Math 2/Text Math 2"
+"src/Text Math 2/x64"
