@@ -13,15 +13,18 @@ namespace text_math {
 			DECIMAL,
 			INVALID
 		};
-		enum Sign : short {
-			POSITIVE,
-			NEGATIVE
-		};
 
 		static Type inspect_type(const char*) noexcept;
 		static std::string trim_zeroes_str(std::string) noexcept;
 		static std::list<DIGIT> trim_zeroes(const std::list<DIGIT>&) noexcept;
 
+	public:
+		enum Sign : short {
+			POSITIVE,
+			NEGATIVE
+		};
+
+	protected:
 		std::list<DIGIT> digits;
 		Sign sign;
 
@@ -30,6 +33,6 @@ namespace text_math {
 		Number(const std::list<DIGIT>, const Sign) noexcept;
 
 		std::list<DIGIT> get_digits() const noexcept;
-		Number::Sign get_sign() const noexcept;		
+		Number::Sign get_sign() const noexcept;
 	};
 }
