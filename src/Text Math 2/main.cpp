@@ -6,7 +6,8 @@ using namespace text_math;
 
 int main() {
 	try {
-		Integer<float> n(0.0);
+		Integer<int> n(-9999);
+		std::cout << n.as_string();
 	}
 	catch (std::exception err) {
 		std::cout << err.what() << std::endl;

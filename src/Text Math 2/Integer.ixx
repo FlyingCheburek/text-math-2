@@ -22,17 +22,21 @@ namespace text_math {
 				}
 				else {
 					this->sign = Number::POSITIVE;
-					while (value > 0) {
-						this->digits.push_back(value % 10);
-						value /= 10;
-					}
 				}
+				this->digits = Number::as_digit_list<T>(value);
 			}
 			else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, const char*>) {
 				// TODO...
 			}
 			else throw std::invalid_argument("Error in text_math::Integer constructor: template parameter should be integral or string");
 			
+		}
+
+		std::string as_string() const noexcept override {
+			std::string str = this->sign == Number::NEGATIVE ? "-" : "";
+			for (auto it = this->digits.rbegin(); it != digits.rend(); ++it)
+				str.push_back(static_cast<char>(*it + '0'));
+			return str;
 		}
 	};
 }

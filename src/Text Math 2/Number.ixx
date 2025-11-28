@@ -18,6 +18,16 @@ namespace text_math {
 		static std::string trim_zeroes_str(std::string) noexcept;
 		static std::list<DIGIT> trim_zeroes(const std::list<DIGIT>&) noexcept;
 
+		template<std::integral T>
+		static std::list<DIGIT> as_digit_list(T num) noexcept {
+			std::list<DIGIT> ret;
+			while (num > 0) {
+				ret.push_back(num % 10);
+				num /= 10;
+			}
+			return ret;
+		}
+
 	public:
 		enum Sign : short {
 			POSITIVE,
@@ -31,6 +41,8 @@ namespace text_math {
 	public:
 		Number() noexcept {  }
 		Number(const std::list<DIGIT>, const Sign) noexcept;
+
+		virtual std::string as_string() const noexcept = 0;
 
 		std::list<DIGIT> get_digits() const noexcept;
 		Number::Sign get_sign() const noexcept;
