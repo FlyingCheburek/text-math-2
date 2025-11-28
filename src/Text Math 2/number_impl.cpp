@@ -1,8 +1,61 @@
-module text_math;
+module text_math:number;
 
 using namespace text_math;
+
+Number::Type Number::inspect_type(const char* value) noexcept{
+	if (std::regex_match(value, std::regex("^-?\\d+$")))
+		return INTEGER;
+
+	if (std::regex_match(value, std::regex("^-?\\d*\\.\\d+$")))
+		return DECIMAL;
+
+	return INVALID;
+}
+
+std::string Number::trim_zeroes_str(std::string value) noexcept {
+	bool negative = value.front() == '-';
+	if (negative)
+		value.erase(0, 1);
+
+	size_t trim_idx = value.find_first_not_of('0');
+
+	if (trim_idx == std::string::npos)
+		return "0";
+	else if (trim_idx != value.length() - 1)
+		value = value.substr(trim_idx);
+
+	if (negative) value = "-" + value;
+
+	return value;
+}
+
+std::list<DIGIT> text_math::Number::trim_zeroes(const std::list<DIGIT>& value) noexcept {
+	bool trimming = true;
+	std::list<DIGIT> trimmed;
+	for (const DIGIT& d : value) {
+		if (d > 0) {
+			if (trimming)
+				trimming = false;
+			trimmed.push_back(d);
+		}
+		else if (!trimming)
+			trimmed.push_back(d);
+	}
+	if (trimmed.empty()) 
+		trimmed.push_back(0);
+
+	return trimmed;
+}
 
 Number::Number(const std::list<DIGIT> value, const Sign sign = Number::POSITIVE) noexcept {
 	this->digits = value;
 	this->sign = sign;
+}
+
+std::list<DIGIT> Number::get_digits() const noexcept {
+	return digits;
+}
+
+Number::Sign Number::get_sign() const noexcept {
+	return sign;
 }
