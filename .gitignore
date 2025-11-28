@@ -48,5 +48,10 @@
 *.tlog
 *.log
 *.lastbuildstate
-"src/Text Math 2/Text Math 2"
-"src/Text Math 2/x64"
+*.db-shm
+*.db-wal
+*.opendb
+*.ipch
+*.ifc
+*.dt
+*.command
