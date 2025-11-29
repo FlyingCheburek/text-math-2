@@ -35,6 +35,10 @@ namespace text_math {
 			else throw std::invalid_argument("Error in text_math::Integer::set_value: template parameter should be integral or std::string.");
 		}
 
+		void add(const Integer& value) {
+			this->digits = std::get<1>(Number::make_same_len(this->digits, value.get_digits())); // test
+		}
+
 		Integer(T value) {
 			try {
 				set_value<T>(value);
