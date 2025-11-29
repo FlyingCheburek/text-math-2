@@ -6,8 +6,10 @@ using namespace text_math;
 
 int main() {
 	try {
-		Integer<int> n(-9999);
-		std::cout << n.as_string();
+		Integer<std::string> n("1000");
+		std::cout << n << std::endl;
+		n.set_value<unsigned>(999);
+		std::cout << n << std::endl;
 	}
 	catch (std::exception err) {
 		std::cout << err.what() << std::endl;

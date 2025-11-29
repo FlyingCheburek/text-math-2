@@ -29,7 +29,7 @@ std::string Number::trim_zeroes_str(std::string value) noexcept {
 	return value;
 }
 
-std::list<DIGIT> text_math::Number::trim_zeroes(const std::list<DIGIT>& value) noexcept {
+std::list<DIGIT> Number::trim_zeroes(const std::list<DIGIT>& value) noexcept {
 	bool trimming = true;
 	std::list<DIGIT> trimmed;
 	for (const DIGIT& d : value) {

@@ -2,6 +2,7 @@ export module text_math:number;
 
 import <regex>;
 import <list>;
+import <type_traits>;
 
 using DIGIT = unsigned short;
 
@@ -18,12 +19,21 @@ namespace text_math {
 		static std::string trim_zeroes_str(std::string) noexcept;
 		static std::list<DIGIT> trim_zeroes(const std::list<DIGIT>&) noexcept;
 
-		template<std::integral T>
+		template<typename T>
 		static std::list<DIGIT> as_digit_list(T num) noexcept {
 			std::list<DIGIT> ret;
-			while (num > 0) {
-				ret.push_back(num % 10);
-				num /= 10;
+			if constexpr (std::is_integral_v<T>) {
+				while (num > 0) {
+					ret.push_back(num % 10);
+					num /= 10;
+				}
+			}
+			else if constexpr (std::is_same_v<T, std::string>) {
+				for (const char& d : trim_zeroes_str(num))
+					ret.push_front(static_cast<DIGIT>(d - '0'));
+
+				if (num.front() == '-')
+					ret.pop_back();
 			}
 			return ret;
 		}
@@ -39,7 +49,7 @@ namespace text_math {
 		Sign sign;
 
 	public:
-		Number() noexcept {  }
+		Number() noexcept { }
 		Number(const std::list<DIGIT>, const Sign) noexcept;
 
 		virtual std::string as_string() const noexcept = 0;
