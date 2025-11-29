@@ -36,7 +36,20 @@ namespace text_math {
 		}
 
 		void add(const Integer& value) {
-			this->digits = std::get<1>(Number::make_same_len(this->digits, value.get_digits())); // test
+			auto [a, b] = Number::make_same_len(this->digits, value.get_digits());
+			std::list<DIGIT> result;
+			if (this->sign == Number::POSITIVE && value.get_sign() == Number::POSITIVE || this->sign == Number::NEGATIVE && value.get_sign() == Number::NEGATIVE) {
+				for (auto it_a = a.begin(), it_b = b.begin(); it_a != a.end(); ++it_a, ++it_b) {
+					result.push_back( (*it_a + *it_b) % 10 );
+					if (std::next(it_b) != b.end()) 
+						*std::next(it_b) += (*it_a + *it_b) / 10;
+					else {
+						if ((*it_a + *it_b) > 9)
+							result.push_back((*it_a + *it_b) / 10);
+					}
+				}
+				this->digits = result;
+			}
 		}
 
 		Integer(T value) {

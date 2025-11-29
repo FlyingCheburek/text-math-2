@@ -48,7 +48,7 @@ std::list<DIGIT> Number::trim_zeroes(const std::list<DIGIT>& value) noexcept {
 }
 
 std::tuple<std::list<DIGIT>, std::list<DIGIT>> text_math::Number::make_same_len(const std::list<DIGIT>& a, const std::list<DIGIT>& b) {
-	auto [big, small] = std::make_tuple( (a.size() > b.size() ? a : b), (a.size() < b.size() ? a : b));
+	auto [big, small] = a.size() != b.size() ? std::make_tuple( (a.size() > b.size() ? a : b), (a.size() < b.size() ? a : b)) : std::make_tuple(a, b);
 
 	for (size_t siz = big.size() - small.size() + 1; siz > 1; siz--)
 		small.push_back(0);

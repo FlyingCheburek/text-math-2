@@ -6,8 +6,8 @@ using namespace text_math;
 
 int main() {
 	try {
-		Integer<std::string> n("100"), m("-19912");
-		n.add(m); // test
+		Integer<std::string> n("-1"), m("-1");
+		n.add(m);
 		std::cout << n;
 	}
 	catch (std::exception err) {

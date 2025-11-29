@@ -5,7 +5,7 @@ import <list>;
 import <type_traits>;
 import <tuple>;
 
-using DIGIT = unsigned short;
+using DIGIT = short;
 
 namespace text_math {
 	export class Number {
