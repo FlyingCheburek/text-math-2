@@ -32,10 +32,13 @@ namespace text_math {
 				}
 				else throw std::invalid_argument("Error in text_math::Integer::set_value: invalid integer formatting provided.");
 			}
+			else if constexpr (std::is_same_v<M, std::list<DIGIT>>) {
+				this->digits = value;
+			}
 			else throw std::invalid_argument("Error in text_math::Integer::set_value: template parameter should be integral or std::string.");
 		}
 
-		void add(const Integer& value) {
+		void add(const Integer value) noexcept {
 			auto [a, b] = Number::make_same_len(this->digits, value.get_digits());
 			std::list<DIGIT> result;
 			if (this->sign == Number::POSITIVE && value.get_sign() == Number::POSITIVE || this->sign == Number::NEGATIVE && value.get_sign() == Number::NEGATIVE) {
@@ -50,6 +53,62 @@ namespace text_math {
 				}
 				this->digits = result;
 			}
+			// ...
+		}
+		// TODO: operator+
+
+		inline bool is_equal(const Integer value) noexcept {
+			return value.get_sign() == this->sign && this->digits == value.get_digits();
+		}
+		inline bool operator==(const Integer value) noexcept {
+			return is_equal(value);
+		}
+		inline bool is_not_equal(const Integer value) noexcept {
+			return value.get_sign() != this->sign || this->digits != value.get_digits();
+		}
+		inline bool operator!=(const Integer value) noexcept {
+			return is_not_equal(value);
+		}
+
+		bool is_greater_than(const Integer value) noexcept {
+			std::list<DIGIT> _value = value.get_digits();
+			if (value.get_sign() == Number::NEGATIVE && this->sign == Number::POSITIVE)
+				return true;
+			else if (value.get_sign() == Number::POSITIVE && this->sign == Number::NEGATIVE)
+				return false;
+			else if (_value.size() != this->digits.size())
+				return value.get_sign() == Number::POSITIVE ? this->digits.size() > _value.size() : this->digits.size() < _value.size();
+			else {
+				for (auto it_a = this->digits.crbegin(), it_b = _value.crbegin(); it_a != this->digits.rend(); ++it_a, ++it_b) {
+					if (*it_a > *it_b)
+						return this->sign == Number::POSITIVE;
+					else if (*it_a < *it_b)
+						return this->sign == Number::NEGATIVE;
+				}
+			}
+			return false;
+		}
+		inline bool operator>(const Integer value) noexcept {
+			return is_greater_than(value);
+		}
+		inline bool is_equal_or_greater_than(const Integer value) noexcept {
+			return is_equal(value) || is_greater_than(value);
+		}
+		inline bool operator>=(const Integer value) noexcept {
+			return is_equal(value) || is_greater_than(value);
+		}
+
+		inline bool is_less_than(const Integer value) noexcept {
+			return is_equal(value) xor !is_greater_than(value);
+		}
+		inline bool operator<(const Integer value) noexcept {
+			return is_equal(value) xor !is_greater_than(value);
+		}
+		inline bool is_equal_or_less_than(const Integer value) noexcept {
+			return is_equal(value) || is_less_than(value);
+		}
+		inline bool operator<= (const Integer value) noexcept {
+			return is_equal(value) || is_less_than(value);
 		}
 
 		Integer(T value) {
