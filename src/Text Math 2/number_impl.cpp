@@ -47,11 +47,17 @@ std::list<DIGIT> Number::trim_zeroes(const std::list<DIGIT>& value) noexcept {
 	return trimmed;
 }
 
-std::tuple<std::list<DIGIT>, std::list<DIGIT>> text_math::Number::make_same_len(const std::list<DIGIT>& a, const std::list<DIGIT>& b) {
+std::tuple<std::list<DIGIT>, std::list<DIGIT>> text_math::Number::make_same_len(const std::list<DIGIT>& a, const std::list<DIGIT>& b, const bool&& compare_digit_value) {
 	auto [big, small] = a.size() != b.size() ? std::make_tuple( (a.size() > b.size() ? a : b), (a.size() < b.size() ? a : b)) : std::make_tuple(a, b);
 
 	for (size_t siz = big.size() - small.size() + 1; siz > 1; siz--)
 		small.push_back(0);
+	if (std::move(compare_digit_value) && a.size() == b.size()) {
+		for (auto it_a = big.cbegin(), it_b = small.cbegin(); it_a !=big.cend(); ++it_a, ++it_b) {
+			if (*it_a < *it_b)
+				return std::make_tuple(small, big);
+		}
+	}
 
 	return std::make_tuple(big, small);
 }

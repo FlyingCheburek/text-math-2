@@ -19,7 +19,7 @@ namespace text_math {
 		static Type inspect_type(const char*) noexcept;
 		static std::string trim_zeroes_str(std::string) noexcept;
 		static std::list<DIGIT> trim_zeroes(const std::list<DIGIT>&) noexcept;
-		static std::tuple<std::list<DIGIT>, std::list<DIGIT>> make_same_len(const std::list<DIGIT>&, const std::list<DIGIT>&);
+		static std::tuple<std::list<DIGIT>, std::list<DIGIT>> make_same_len(const std::list<DIGIT>&, const std::list<DIGIT>&, const bool&& compare_digit_value = false);
 
 		template<typename T>
 		static std::list<DIGIT> as_digit_list(T num) noexcept {

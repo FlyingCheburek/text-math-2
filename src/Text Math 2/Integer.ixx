@@ -38,39 +38,113 @@ namespace text_math {
 			else throw std::invalid_argument("Error in text_math::Integer::set_value: template parameter should be integral or std::string.");
 		}
 
-		void add(const Integer value) noexcept {
-			auto [a, b] = Number::make_same_len(this->digits, value.get_digits());
-			std::list<DIGIT> result;
-			if (this->sign == Number::POSITIVE && value.get_sign() == Number::POSITIVE || this->sign == Number::NEGATIVE && value.get_sign() == Number::NEGATIVE) {
-				for (auto it_a = a.begin(), it_b = b.begin(); it_a != a.end(); ++it_a, ++it_b) {
-					result.push_back( (*it_a + *it_b) % 10 );
-					if (std::next(it_b) != b.end()) 
-						*std::next(it_b) += (*it_a + *it_b) / 10;
-					else {
-						if ((*it_a + *it_b) > 9)
-							result.push_back((*it_a + *it_b) / 10);
+		void sum(const Integer value) noexcept {
+			if (this->sign != value.get_sign()) {
+				this->sign = this->sign == Number::POSITIVE ? Number::NEGATIVE : Number::POSITIVE;
+				this->subtraction(value);
+				this->sign = this->sign == Number::POSITIVE && this->digits.back() != 0 ? Number::NEGATIVE : Number::POSITIVE;
+			}
+			else {
+				auto [a, b] = Number::make_same_len(this->digits, value.get_digits());
+				std::list<DIGIT> result;
+				if (this->sign == Number::POSITIVE && value.get_sign() == Number::POSITIVE || this->sign == Number::NEGATIVE && value.get_sign() == Number::NEGATIVE) {
+					for (auto it_a = a.begin(), it_b = b.begin(); it_a != a.end(); ++it_a, ++it_b) {
+						result.push_back((*it_a + *it_b) % 10);
+						if (std::next(it_b) != b.end())
+							*std::next(it_b) += (*it_a + *it_b) / 10;
+						else {
+							if ((*it_a + *it_b) > 9)
+								result.push_back((*it_a + *it_b) / 10);
+						}
 					}
+					this->digits = result;
 				}
+			}
+		}
+		inline Integer operator+(const Integer& other) const noexcept {
+			Integer result(*this);
+			result.sum(other);
+			return result;
+		}
+		inline Integer& operator++() noexcept { // prefix (++x)
+			if constexpr (std::is_integral_v<T>)
+				this->sum(Integer<T>(1));
+			else
+				this->sum(Integer<T>("1"));
+			return *this;
+		}
+		inline Integer operator++(int) noexcept { // post-fix (x++)
+			Integer result(*this);
+			++*this;
+			return result;
+		}
+		inline Integer operator+=(const Integer& other) noexcept {
+			*this = *this + other;
+			return *this;
+		}
+		
+
+		void subtraction(const Integer value) noexcept {
+			if (this->sign != value.get_sign()) {
+				this->sign = this->sign == Number::POSITIVE ? Number::NEGATIVE : Number::POSITIVE;
+				this->sum(value);
+				this->sign = this->sign == Number::POSITIVE ? Number::NEGATIVE : Number::POSITIVE;
+			}
+			else {
+				auto [a, b] = Number::make_same_len(this->digits, value.get_digits(), true);
+				std::list<DIGIT> result;
+				for (auto it_a = a.begin(), it_b = b.begin(); it_a != a.end(); ++it_a, ++it_b) {
+					DIGIT d = *it_a - *it_b;
+					if (d < 0) {
+						d += 10;
+						*std::next(it_a) -= 1;
+					}
+					result.push_back(d);
+				}
+				while (result.size() > 1 && result.back() == 0)
+					result.pop_back();
+
+				this->sign = this->is_equal_or_greater_than(value) ? Number::POSITIVE : Number::NEGATIVE;
 				this->digits = result;
 			}
-			// ...
 		}
-		// TODO: operator+
+		inline Integer operator-(const Integer& other) const noexcept {
+			Integer result(*this);
+			result.subtraction(other);
+			return result;
+		}
+		inline Integer& operator--() noexcept { // prefix (--x)
+			if constexpr (std::is_integral_v<T>)
+				this->subtraction(Integer<T>(1));
+			else
+				this->subtraction(Integer<T>("1"));
+			return *this;
+		}
+		inline Integer operator--(int) noexcept { // post-fix (x--)
+			Integer result(*this);
+			--*this;
+			return result;
+		}
+		inline Integer operator-=(const Integer& other) noexcept {
+			Integer result(*this);
+			*this = *this - other;
+			return *this;
+		}
 
-		inline bool is_equal(const Integer value) noexcept {
+		inline bool is_equal(const Integer value) const noexcept {
 			return value.get_sign() == this->sign && this->digits == value.get_digits();
 		}
-		inline bool operator==(const Integer value) noexcept {
+		inline bool operator==(const Integer value) const noexcept {
 			return is_equal(value);
 		}
-		inline bool is_not_equal(const Integer value) noexcept {
+		inline bool is_not_equal(const Integer value) const noexcept {
 			return value.get_sign() != this->sign || this->digits != value.get_digits();
 		}
-		inline bool operator!=(const Integer value) noexcept {
+		inline bool operator!=(const Integer value) const noexcept {
 			return is_not_equal(value);
 		}
 
-		bool is_greater_than(const Integer value) noexcept {
+		bool is_greater_than(const Integer value) const noexcept {
 			std::list<DIGIT> _value = value.get_digits();
 			if (value.get_sign() == Number::NEGATIVE && this->sign == Number::POSITIVE)
 				return true;
@@ -88,26 +162,26 @@ namespace text_math {
 			}
 			return false;
 		}
-		inline bool operator>(const Integer value) noexcept {
+		inline bool operator>(const Integer value) const noexcept {
 			return is_greater_than(value);
 		}
-		inline bool is_equal_or_greater_than(const Integer value) noexcept {
+		inline bool is_equal_or_greater_than(const Integer value) const noexcept {
 			return is_equal(value) || is_greater_than(value);
 		}
-		inline bool operator>=(const Integer value) noexcept {
+		inline bool operator>=(const Integer value) const noexcept {
 			return is_equal(value) || is_greater_than(value);
 		}
 
-		inline bool is_less_than(const Integer value) noexcept {
+		inline bool is_less_than(const Integer value) const noexcept {
 			return is_equal(value) xor !is_greater_than(value);
 		}
-		inline bool operator<(const Integer value) noexcept {
+		inline bool operator<(const Integer value) const noexcept {
 			return is_equal(value) xor !is_greater_than(value);
 		}
-		inline bool is_equal_or_less_than(const Integer value) noexcept {
+		inline bool is_equal_or_less_than(const Integer value) const noexcept {
 			return is_equal(value) || is_less_than(value);
 		}
-		inline bool operator<= (const Integer value) noexcept {
+		inline bool operator<= (const Integer value) const noexcept {
 			return is_equal(value) || is_less_than(value);
 		}
 
