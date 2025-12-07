@@ -2,11 +2,21 @@ export module text_math:integer;
 import :number;
 import <stdexcept>;
 import <ostream>;
+import <iostream>;
 
 namespace text_math {
 	
 	export template<typename T>
-	class Integer : public Number {
+	class Integer final : public Number {
+	private:
+		Integer() noexcept { }
+
+		template<typename M>
+		void set_value(M value, const Number::Sign sign) {
+			this->set_value(value);
+			this->sign = sign;
+		}
+
 	public:
 		template<typename M>
 		void set_value(M value) {
@@ -41,7 +51,7 @@ namespace text_math {
 		void sum(const Integer value) noexcept {
 			if (this->sign != value.get_sign()) {
 				this->sign = this->sign == Number::POSITIVE ? Number::NEGATIVE : Number::POSITIVE;
-				this->subtraction(value);
+				this->subtract(value);
 				this->sign = this->sign == Number::POSITIVE && this->digits.back() != 0 ? Number::NEGATIVE : Number::POSITIVE;
 			}
 			else {
@@ -84,7 +94,7 @@ namespace text_math {
 		}
 		
 
-		void subtraction(const Integer value) noexcept {
+		void subtract(const Integer value) noexcept {
 			if (this->sign != value.get_sign()) {
 				this->sign = this->sign == Number::POSITIVE ? Number::NEGATIVE : Number::POSITIVE;
 				this->sum(value);
@@ -110,14 +120,14 @@ namespace text_math {
 		}
 		inline Integer operator-(const Integer& other) const noexcept {
 			Integer result(*this);
-			result.subtraction(other);
+			result.subtract(other);
 			return result;
 		}
 		inline Integer& operator--() noexcept { // prefix (--x)
 			if constexpr (std::is_integral_v<T>)
-				this->subtraction(Integer<T>(1));
+				this->subtract(Integer<T>(1));
 			else
-				this->subtraction(Integer<T>("1"));
+				this->subtract(Integer<T>("1"));
 			return *this;
 		}
 		inline Integer operator--(int) noexcept { // post-fix (x--)
@@ -129,6 +139,72 @@ namespace text_math {
 			Integer result(*this);
 			*this = *this - other;
 			return *this;
+		}
+
+		void multiply(const Integer value) noexcept {
+			if (value.get_digits() == std::list<DIGIT>({ 0 }) || this->digits == std::list<DIGIT>({ 0 }))
+				this->digits = std::list<DIGIT>({ 0 });
+			
+			else {
+				auto [a, b] = Number::make_same_len(this->digits, value.get_digits());
+				size_t count = 0;
+				Integer result;
+				for (auto it_b = b.cbegin(); it_b != b.cend(); ++it_b) {
+					if (*it_b == 0 && std::next(it_b) == b.cend())
+						break;
+
+					DIGIT extra = 0, curr = 0;
+					std::string prod = "";
+					for (auto it_a = a.cbegin(); it_a != a.cend(); ++it_a) {
+						curr = (*it_a * *it_b) + extra;
+						prod = std::to_string(std::next(it_a) == a.cend() ? curr : curr % 10) + prod;
+						extra = curr / 10;
+					}
+					for (size_t i = 0; i < count; i++)
+						prod.push_back('0');
+					if (count == 0)
+						result.set_value<std::string>(prod);
+					else {
+						if constexpr (std::is_integral_v<T>) {
+							Integer temp;
+							temp.set_value<std::string>(prod);
+							result.sum(temp);
+						}
+						else
+							result.sum(Integer(prod));
+						
+					}
+					count++;
+				}
+				this->sign = this->sign != value.get_sign() ? Number::NEGATIVE : Number::POSITIVE;
+				this->digits = result.get_digits();
+			}
+		}
+		inline Integer operator*(const Integer& other) const noexcept {
+			Integer result(*this);
+			result.multiply(other);
+			return result;
+		}
+		inline Integer operator*=(const Integer& other) noexcept {
+			Integer result(*this);
+			result.multiply(other);
+			*this = result;
+			return *this;
+		}
+
+		void divide(const Integer value, Integer* remainder = nullptr) {
+			if (value.get_digits() == std::list<DIGIT>({ 0 }))
+				throw std::invalid_argument("Error in text_math::Integer::divide: division by 0.");
+
+			if (this->is_less_than(Integer::abs(value))) {
+				this->digits = std::list<DIGIT>({ 0 });
+				this->sign = Number::POSITIVE;
+				if (remainder)
+					*remainder = value;
+			}	
+			else {
+				// TODO...
+			}
 		}
 
 		inline bool is_equal(const Integer value) const noexcept {
@@ -199,6 +275,12 @@ namespace text_math {
 			for (auto it = this->digits.rbegin(); it != digits.rend(); ++it)
 				str.push_back(static_cast<char>(*it + '0'));
 			return str;
+		}
+
+		static Integer abs(const Integer value) noexcept {
+			Integer result;
+			result.set_value<std::string>(value.as_string(), Number::POSITIVE);
+			return result;
 		}
 
 		friend static std::ostream& operator<<(std::ostream& os, const Integer& obj) noexcept {
